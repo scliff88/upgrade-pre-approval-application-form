@@ -97,6 +97,14 @@
         <p id="inverterLflNote" class="help-text hidden">No extra AC capacity</p>
       </div>
 
+      <!-- Solar Panels -->
+      <label><input type="checkbox" id="chkPV" /> Solar Panels (PV)</label>
+      <div id="pvOptions" class="hidden sub-options">
+        <label><input type="checkbox" id="chkPVAdd"> Adding</label>
+        <label><input type="checkbox" id="chkPVReplace"> Replacing</label>
+        <p id="pvNote" class="help-text hidden">No AC capacity needed</p>
+      </div>
+
       <!-- Battery -->
       <label><input type="checkbox" id="chkBattery" /> Battery Storage</label>
       <div id="batteryOptions" class="hidden sub-options">
@@ -192,6 +200,11 @@ toggle('chkInverterAdd','inverterAddFields');
 toggle('chkInverterReplace','inverterReplaceFields');
 toggle('chkInverterLfl','inverterLflNote');
 
+// PV toggles
+toggle('chkPV','pvOptions');
+toggle('chkPVAdd','pvNote');
+toggle('chkPVReplace','pvNote');
+
 // Battery toggles
 toggle('chkBattery','batteryOptions');
 toggle('chkBatteryAdd','batteryAddFields');
@@ -225,6 +238,7 @@ document.getElementById('chkExportOnly').addEventListener('change', ()=>{
   document.getElementById('inverterOptions').classList.add('hidden');
   document.getElementById('batteryOptions').classList.add('hidden');
   document.getElementById('v2gOptions').classList.add('hidden');
+  document.getElementById('pvOptions').classList.add('hidden');
   updateTotal();
 });
 
@@ -260,7 +274,6 @@ function updateTotal(){
     if(document.getElementById('chkV2GReplace').checked){
       total = (total - (+document.getElementById('v2gRemoveCapacity').value||0)) + (+document.getElementById('v2gReplaceCapacity').value||0);
     }
-    // like-for-like does nothing
   }
 
   proposedACValue=Math.max(0,total);
