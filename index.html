@@ -113,6 +113,18 @@
         <p id="dcV2GNote" class="help-text hidden">No AC capacity needed</p>
       </div>
 
+      <!-- EV Charger -->
+      <label><input type="checkbox" id="chkEV" /> EV Charger</label>
+      <div id="evOptions" class="hidden sub-options">
+        <label>Additional (kW): <input type="number" id="evAddCapacity"></label>
+        <label>Remove (kW): <input type="number" id="evRemoveCapacity"></label>
+        <label>Replace (kW): <input type="number" id="evReplaceCapacity"></label>
+        <label><input type="checkbox" id="chkEVLfl"> Like-for-like</label>
+        <p id="evLflNote" class="help-text hidden">No change in site load</p>
+        <label><input type="checkbox" id="chkDCEV"> DC EV Charger</label>
+        <p id="dcEVNote" class="help-text hidden">No AC capacity needed</p>
+      </div>
+
       <!-- Export Increase Only -->
       <label><input type="checkbox" id="chkExportOnly" /> Export Increase Only</label>
       <p id="exportOnlyNote" class="export-only-note hidden">Skip straight to Export Settings below.</p>
@@ -157,20 +169,23 @@ function toggle(id,opt){ document.getElementById(id).addEventListener('change',(
 toggle('chkInverter','inverterOptions');
 toggle('chkBattery','batteryOptions');
 toggle('chkV2G','v2gOptions');
+toggle('chkEV','evOptions');
 
-// Like-for-like notes
+// Like-for-like + DC notes
 function toggleNote(chk,note){document.getElementById(chk).addEventListener('change',()=>{document.getElementById(note).classList.toggle('hidden',!document.getElementById(chk).checked);});}
 toggleNote('chkInverterLfl','inverterLflNote');
 toggleNote('chkBatteryLfl','batteryLflNote');
 toggleNote('chkV2GLfl','v2gLflNote');
+toggleNote('chkEVLfl','evLflNote');
 toggleNote('chkDCBattery','dcBatteryNote');
 toggleNote('chkDCV2G','dcV2GNote');
+toggleNote('chkDCEV','dcEVNote');
 
 // Export only logic
 document.getElementById('chkExportOnly').addEventListener('change', ()=>{
   const on = document.getElementById('chkExportOnly').checked;
   document.getElementById('exportOnlyNote').classList.toggle('hidden',!on);
-  ['inverterOptions','batteryOptions','v2gOptions'].forEach(id=>{
+  ['inverterOptions','batteryOptions','v2gOptions','evOptions'].forEach(id=>{
     document.getElementById(id).classList.add('hidden');
   });
   updateTotal();
@@ -192,6 +207,11 @@ function updateTotal(){
     total += (+document.getElementById('v2gAddCapacity').value||0);
     total = (total - (+document.getElementById('v2gRemoveCapacity').value||0)) + (+document.getElementById('v2gReplaceCapacity').value||0);
   }
+  // EV: doesn't add to AC capacity if LfL or DC ticked
+  if(document.getElementById('chkEV').checked && !document.getElementById('chkEVLfl').checked && !document.getElementById('chkDCEV').checked){
+    total += (+document.getElementById('evAddCapacity').value||0);
+    total = (total - (+document.getElementById('evRemoveCapacity').value||0)) + (+document.getElementById('evReplaceCapacity').value||0);
+  }
 
   proposedACValue = Math.max(0,total);
   document.getElementById('totalCapacityDisplay').textContent = proposedACValue.toFixed(1);
@@ -199,7 +219,11 @@ function updateTotal(){
 }
 
 // Inputs that change total
-['inverterAddCapacity','inverterRemoveCapacity','inverterReplaceCapacity','batteryAddCapacity','batteryRemoveCapacity','batteryReplaceCapacity','v2gAddCapacity','v2gRemoveCapacity','v2gReplaceCapacity','requestedExport'].forEach(id=>{
+['inverterAddCapacity','inverterRemoveCapacity','inverterReplaceCapacity',
+ 'batteryAddCapacity','batteryRemoveCapacity','batteryReplaceCapacity',
+ 'v2gAddCapacity','v2gRemoveCapacity','v2gReplaceCapacity',
+ 'evAddCapacity','evRemoveCapacity','evReplaceCapacity',
+ 'requestedExport'].forEach(id=>{
   if(document.getElementById(id)){
     document.getElementById(id).addEventListener('input',updateTotal);
   }
