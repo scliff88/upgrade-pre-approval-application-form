@@ -79,16 +79,14 @@
         No internet: zero export
       </div>
 
-      <!-- Export Increase Only -->
-      <label><input type="checkbox" id="chkExportOnly" /> Export Increase Only</label>
-      <p id="exportOnlyNote" class="export-only-note hidden">Skip straight to Export Settings below.</p>
-
       <!-- Inverters -->
       <label><input type="checkbox" id="chkInverter" /> Solar Inverters</label>
       <div id="inverterOptions" class="hidden sub-options">
         <label>Additional (kW): <input type="number" id="inverterAddCapacity"></label>
         <label>Remove (kW): <input type="number" id="inverterRemoveCapacity"></label>
         <label>Replace (kW): <input type="number" id="inverterReplaceCapacity"></label>
+        <label><input type="checkbox" id="chkInverterLfl"> Like-for-like</label>
+        <p id="inverterLflNote" class="help-text hidden">No extra AC capacity</p>
       </div>
 
       <!-- Battery -->
@@ -97,6 +95,8 @@
         <label>Additional (kW): <input type="number" id="batteryAddCapacity"></label>
         <label>Remove (kW): <input type="number" id="batteryRemoveCapacity"></label>
         <label>Replace (kW): <input type="number" id="batteryReplaceCapacity"></label>
+        <label><input type="checkbox" id="chkBatteryLfl"> Like-for-like</label>
+        <p id="batteryLflNote" class="help-text hidden">No extra AC capacity</p>
         <label><input type="checkbox" id="chkDCBattery"> DC Battery</label>
         <p id="dcBatteryNote" class="help-text hidden">No AC capacity needed</p>
       </div>
@@ -107,7 +107,15 @@
         <label>Additional (kW): <input type="number" id="v2gAddCapacity"></label>
         <label>Remove (kW): <input type="number" id="v2gRemoveCapacity"></label>
         <label>Replace (kW): <input type="number" id="v2gReplaceCapacity"></label>
+        <label><input type="checkbox" id="chkV2GLfl"> Like-for-like</label>
+        <p id="v2gLflNote" class="help-text hidden">No extra AC capacity</p>
+        <label><input type="checkbox" id="chkDCV2G"> DC V2G</label>
+        <p id="dcV2GNote" class="help-text hidden">No AC capacity needed</p>
       </div>
+
+      <!-- Export Increase Only -->
+      <label><input type="checkbox" id="chkExportOnly" /> Export Increase Only</label>
+      <p id="exportOnlyNote" class="export-only-note hidden">Skip straight to Export Settings below.</p>
 
       <div class="total-box">Total Capacity: <span id="totalCapacityDisplay">0.0</span> kW</div>
     </div>
@@ -150,6 +158,14 @@ toggle('chkInverter','inverterOptions');
 toggle('chkBattery','batteryOptions');
 toggle('chkV2G','v2gOptions');
 
+// Like-for-like notes
+function toggleNote(chk,note){document.getElementById(chk).addEventListener('change',()=>{document.getElementById(note).classList.toggle('hidden',!document.getElementById(chk).checked);});}
+toggleNote('chkInverterLfl','inverterLflNote');
+toggleNote('chkBatteryLfl','batteryLflNote');
+toggleNote('chkV2GLfl','v2gLflNote');
+toggleNote('chkDCBattery','dcBatteryNote');
+toggleNote('chkDCV2G','dcV2GNote');
+
 // Export only logic
 document.getElementById('chkExportOnly').addEventListener('change', ()=>{
   const on = document.getElementById('chkExportOnly').checked;
@@ -160,24 +176,19 @@ document.getElementById('chkExportOnly').addEventListener('change', ()=>{
   updateTotal();
 });
 
-// DC battery note
-document.getElementById('chkDCBattery').addEventListener('change', ()=>{
-  document.getElementById('dcBatteryNote').classList.toggle('hidden',!document.getElementById('chkDCBattery').checked);
-});
-
 // Update total
 function updateTotal(){
   let total = baseAC;
 
-  if(document.getElementById('chkInverter').checked){
+  if(document.getElementById('chkInverter').checked && !document.getElementById('chkInverterLfl').checked){
     total += (+document.getElementById('inverterAddCapacity').value||0);
     total = (total - (+document.getElementById('inverterRemoveCapacity').value||0)) + (+document.getElementById('inverterReplaceCapacity').value||0);
   }
-  if(document.getElementById('chkBattery').checked && !document.getElementById('chkDCBattery').checked){
+  if(document.getElementById('chkBattery').checked && !document.getElementById('chkBatteryLfl').checked && !document.getElementById('chkDCBattery').checked){
     total += (+document.getElementById('batteryAddCapacity').value||0);
     total = (total - (+document.getElementById('batteryRemoveCapacity').value||0)) + (+document.getElementById('batteryReplaceCapacity').value||0);
   }
-  if(document.getElementById('chkV2G').checked){
+  if(document.getElementById('chkV2G').checked && !document.getElementById('chkV2GLfl').checked && !document.getElementById('chkDCV2G').checked){
     total += (+document.getElementById('v2gAddCapacity').value||0);
     total = (total - (+document.getElementById('v2gRemoveCapacity').value||0)) + (+document.getElementById('v2gReplaceCapacity').value||0);
   }
