@@ -203,7 +203,6 @@
     let baseAC = 0;
     let proposedACValue = 0;
 
-    // Demo NMI lookup
     document.getElementById('nmi').addEventListener('input', e => {
       const nmi = e.target.value.trim();
       if (nmi.length === 11) {
@@ -230,22 +229,27 @@
     });
 
     function toggleSection(chkId, targetId){
-      const show = document.getElementById(chkId).checked;
+      const el = document.getElementById(chkId);
+      if (!el) return;
+      const show = el.checked;
       document.getElementById(targetId).classList.toggle('hidden', !show);
     }
     function bindToggle(chkId, targetId){
-      document.getElementById(chkId).addEventListener('change', () => {
-        document.getElementById(targetId).classList.toggle('hidden', !document.getElementById(chkId).checked);
+      const el = document.getElementById(chkId);
+      if (!el) return;
+      el.addEventListener('change', () => {
+        document.getElementById(targetId).classList.toggle('hidden', !el.checked);
         updateTotal();
       });
     }
     function bindNote(chkId, noteId){
-      document.getElementById(chkId).addEventListener('change', () => {
-        document.getElementById(noteId).classList.toggle('hidden', !document.getElementById(chkId).checked);
+      const el = document.getElementById(chkId);
+      if (!el) return;
+      el.addEventListener('change', () => {
+        document.getElementById(noteId).classList.toggle('hidden', !el.checked);
       });
     }
 
-    // Export Only logic
     document.getElementById('chkExportOnly').addEventListener('change', () => {
       const isExportOnly = document.getElementById('chkExportOnly').checked;
       document.getElementById('exportOnlyNote').classList.toggle('hidden', !isExportOnly);
@@ -258,12 +262,10 @@
       updateTotal();
     });
 
-    // Top-level sections + recalc
     document.getElementById('chkInverter').addEventListener('change', () => { toggleSection('chkInverter','inverterOptions'); updateTotal(); });
-    document.getElementById('chkBattery').addEventListener('change',  () => { toggleSection('chkBattery','batteryOptions');   updateTotal(); });
-    document.getElementById('chkV2G').addEventListener('change',      () => { toggleSection('chkV2G','v2gOptions');          updateTotal(); });
+    document.getElementById('chkBattery').addEventListener('change',  () => { toggleSection('chkBattery','batteryOptions'); updateTotal(); });
+    document.getElementById('chkV2G').addEventListener('change',      () => { toggleSection('chkV2G','v2gOptions'); updateTotal(); });
 
-    // Sub-option bindings
     bindToggle('chkInverterAdd','inverterAddOptions');
     bindToggle('chkInverterReplace','inverterReplaceOptions');
     bindNote('chkInverterLike','inverterLikeNote');
@@ -297,4 +299,5 @@
         if (document.getElementById('chkBatteryReplace').checked){
           total = (total - (parseFloat(document.getElementById('batteryRemoveCapacity').value) || 0))
                 + (parseFloat(document.getElementById('batteryReplaceCapacity').value) || 0);
-       
+        }
+      }
